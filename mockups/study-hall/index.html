@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Study Hall — Outlier Classroom mock-up</title>
+<style>
+:root{--bg:#fbfaf7;--tx:#222;--mut:#888;--line:#e6e2da;--acc:#9a7b2f;--side:#f3f1ec}body.sepia{--bg:#f4ecd8;--tx:#3b2f1e;--mut:#8a7a60;--line:#e0d3b5;--acc:#8b5e1a;--side:#ece2c8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:18px/1.75 "Iowan Old Style","Palatino Linotype",Georgia,serif;transition:background .2s}
+.wrap{display:grid;grid-template-columns:240px 1fr;min-height:100vh}aside{background:var(--side);border-right:1px solid var(--line);padding:28px 14px;font:15px/1.4 system-ui}aside h1{font:600 15px system-ui;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 16px}
+aside a{display:flex;justify-content:space-between;padding:6px 10px;border-radius:6px;color:var(--tx);text-decoration:none;cursor:pointer}aside a.on{background:var(--bg);font-weight:600}aside a .g{color:var(--mut)}aside a .g.A{color:var(--acc);font-weight:700}
+.tools{margin-top:20px;display:flex;flex-direction:column;gap:6px}.tools button,.btn{font:14px system-ui;background:none;border:1px solid var(--line);color:var(--tx);border-radius:6px;padding:7px 12px;cursor:pointer}
+main{padding:56px 64px;max-width:1200px}.greet{color:var(--mut);font:15px system-ui;margin-bottom:40px}.greet b{color:var(--tx)}.demo{font-size:12px;border:1px solid var(--mut);padding:0 6px;border-radius:4px}
+h2{font-weight:normal;font-size:2rem;margin:0 0 6px}.sub{color:var(--mut);font:15px system-ui;margin-bottom:28px}nav.t{display:flex;gap:22px;font:15px system-ui;border-bottom:1px solid var(--line);margin-bottom:32px}nav.t a{padding:8px 0;cursor:pointer;color:var(--mut)}nav.t a.on{color:var(--tx);border-bottom:2px solid var(--tx)}
+.read{display:grid;grid-template-columns:minmax(0,62ch) 300px;gap:48px}h3{font:600 13px system-ui;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:36px 0 8px}
+.nb{position:sticky;top:20px;align-self:start;border-left:1px solid var(--line);padding-left:24px;font:15px/1.5 system-ui}.nb textarea{width:100%;min-height:340px;border:none;background:transparent;color:var(--tx);font:16px/1.7 Georgia,serif;resize:vertical;outline:none}
+.q{margin:22px 0;max-width:62ch}.qt{margin-bottom:6px}.opt{display:block;width:100%;text-align:left;background:none;border:1px solid var(--line);color:var(--tx);border-radius:6px;padding:8px 12px;margin:5px 0;font:16px Georgia,serif;cursor:pointer}.opt.sel{border-color:var(--tx)}.opt.right{border-color:#4a8a5a}.opt.wrong{border-color:#b54a3a}.fb{color:var(--mut);font-size:15px}
+.timer{font:15px system-ui;color:var(--mut)}.timer.low{color:#b54a3a}.big{font-size:4rem;color:var(--acc)}table{border-collapse:collapse;width:100%;max-width:640px;font:15px system-ui}td,th{padding:10px 6px;border-bottom:1px solid var(--line);text-align:left}
+#menu{display:none}
+@media(max-width:800px){.wrap{grid-template-columns:1fr}aside{display:none;position:fixed;inset:0 30% 0 0;z-index:5;overflow:auto}aside.open{display:block}#menu{display:inline-block;margin-bottom:16px}main{padding:24px 20px}.read{grid-template-columns:1fr}.nb{border-left:none;border-top:1px solid var(--line);padding:16px 0 0;position:static}.nb textarea{min-height:160px}h2{font-size:1.6rem}}
+</style></head><body><div class="wrap"><aside id="side"><h1>Courses</h1><div id="list"></div><div class="tools"><button id="gr">Grades</button><button id="th">Sepia / Light</button></div></aside><main id="app"></main></div>
+<script src="../../lessons.js"></script><script src="../../extra1.js"></script><script src="../../extra2.js"></script><script src="../shared/core.js"></script>
+<script>
+const st=MK.load('oc-mockup-studyhall'),L=MK.L,X=MK.X,$=s=>document.querySelector(s),app=$('#app'),E=MK.esc;let stop=()=>{},cur=st.s.last.day,tab='Reading';
+if(st.s.theme==='sepia')document.body.classList.add('sepia');
+$('#th').onclick=()=>{document.body.classList.toggle('sepia');st.s.theme=document.body.classList.contains('sepia')?'sepia':'light';st.save()};$('#gr').onclick=grades;
+function side(){$('#list').innerHTML=L.map((l,i)=>{const g=MK.letter(st.s.grades[l.skill]);return `<a data-d="${i+1}" class="${i+1===cur&&tab!=='Grades'?'on':''}"><span>${i+1}. ${E(l.skill)}</span><span class="g ${g}">${g}</span></a>`}).join('');
+ document.querySelectorAll('#list a').forEach(a=>a.onclick=()=>{cur=+a.dataset.d;tab='Warm-up';$('#side').classList.remove('open');show()})}
+function greet(){const g=st.greeting();return `<button class="btn" id="menu">☰ Courses</button><div class="greet">Welcome back, Lord ${g.demo?'<span class="demo">demo</span>':''} · ${g.streak}-day streak · left off at <b>${E(g.where)}</b></div>`}
+function bindMenu(){$('#menu').onclick=()=>$('#side').classList.toggle('open')}
+function show(){stop();const l=L[cur-1],x=X[l.skill];st.touch(cur,tab==='Reading'?'Learning':tab);side();
+ app.innerHTML=greet()+`<h2>${E(l.skill)}</h2><div class="sub">Day ${cur} · ${E(l.title)}${l.hw?' · hardware description':''}</div><nav class="t">${['Warm-up','Reading','Test'].map(t=>`<a class="${t===tab?'on':''}">${t}</a>`).join('')}</nav><div id="pane"></div>`;bindMenu();
+ document.querySelectorAll('nav.t a').forEach(a=>a.onclick=()=>{tab=a.textContent;show()});const p=$('#pane');
+ if(tab==='Warm-up'){p.innerHTML=`<div class="sub">${cur>1?'A few questions on '+E(L[cur-2].skill)+' before today.':'A short warm-up to begin.'}</div><div id="wq"></div><button class="btn" id="nx">Continue to reading</button>`;MK.quiz($('#wq'),MK.warm(cur),{instant:true});$('#nx').onclick=()=>{tab='Reading';show()}}
+ if(tab==='Reading'){st.s.read[l.skill]=1;st.save();const ul=a=>'<ul>'+a.map(c=>`<li>${E(c)}</li>`).join('')+'</ul>';
+  p.innerHTML=`<div class="read"><article><p><i>${E(l.why)}</i></p><p>${E(l.breakdown)}</p><h3>Fundamentals</h3><p>${E(x.fund)}</p><h3>What matters most</h3><p>${E(x.matters)}</p><h3>Key concepts</h3>${ul(l.concepts)}<h3>Do</h3>${ul(x.dos)}<h3>Don't</h3>${ul(x.donts)}<h3>Common mistakes</h3>${ul(x.mistakes)}<p><button class="btn" id="tt">Take the test</button></p></article>
+  <div class="nb"><h3 style="margin-top:0">Notebook</h3><textarea id="nbt" placeholder="Write it in your own words…">${E(st.s.notes[l.skill]||'')}</textarea><div class="fb">Saved automatically.</div></div></div>`;
+  $('#nbt').oninput=e=>{st.s.notes[l.skill]=e.target.value;st.save()};$('#tt').onclick=()=>{tab='Test';show()}}
+ if(tab==='Test'){const qs=MK.test(l.skill);p.innerHTML=`<div class="timer">Time remaining <span id="tm"></span> · ${qs.length} questions</div><div id="tq"></div><button class="btn" id="sub">Submit</button>`;
+  const ans=MK.quiz($('#tq'),qs);const fin=()=>{stop();const r=MK.score(qs,ans);st.grade(l.skill,r.pct);side();p.innerHTML=`<div class="big">${MK.letter(r.pct)}</div><div class="sub">${r.ok} of ${qs.length} · ${r.pct}%</div>${MK.review(qs,ans)}`};
+  stop=MK.timer(480,$('#tm'),fin);$('#sub').onclick=fin}}
+function grades(){stop();tab='Grades';side();$('#side').classList.remove('open');app.innerHTML=greet()+`<h2>Grades</h2><div class="sub">GPA ${st.gpa()} · ${L.filter(l=>st.status(l.skill)==='a').length} of 16 at A</div><table><tr><th>Day</th><th>Course</th><th>Grade</th><th>Score</th></tr>${L.map((l,i)=>{const p=st.s.grades[l.skill];return `<tr><td>${i+1}</td><td>${E(l.skill)}</td><td>${MK.letter(p)}</td><td>${p!=null?p+'%':''}</td></tr>`}).join('')}</table>`;bindMenu()}
+show();
+</script></body></html>

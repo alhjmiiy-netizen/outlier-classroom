@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Academy — Outlier Classroom mock-up</title>
+<style>
+:root{--gold:#e0b84a;--ink:#2b2216;--paper:#f6efe0;--green:#5f8f4e}*{box-sizing:border-box}body{margin:0;background:#cfe6c4;font:16px/1.55 Georgia,serif;color:var(--ink)}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#3b2f20;color:#f6efe0;position:sticky;top:0;z-index:3}header b{color:var(--gold)}header button{background:none;border:1px solid #8a7457;color:#f6efe0;border-radius:8px;padding:6px 10px;font:inherit;cursor:pointer;margin-left:4px}
+main{max-width:1000px;margin:auto;padding:14px}.card{background:var(--paper);border:2px solid #b89b6c;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 4px 0 #b89b6c55}
+.greet h1{margin:0;font-size:1.6rem}.demo{background:#c0392b;color:#fff;font:12px system-ui;padding:2px 8px;border-radius:99px;vertical-align:middle}
+svg.map{width:100%;height:auto;background:#bfe0b0;border-radius:16px;border:3px solid #8fb27f}.bld{cursor:pointer}.bld:hover rect.body{stroke:#000;stroke-width:3}.bld text{font:bold 13px Georgia;pointer-events:none}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button,.btn{background:#fff8e6;border:2px solid #b89b6c;border-radius:10px;padding:8px 14px;font:inherit;cursor:pointer;color:var(--ink)}.tabs button.on,.btn.p{background:var(--gold);border-color:#a5822a}
+.room{background:linear-gradient(#7a5a3a 0 18px,#e9dcc0 18px);border-radius:14px;padding:30px 16px 16px;border:3px solid #7a5a3a}.board{background:#2f4b37;color:#f4f1e8;padding:14px;border:8px solid #7a5a3a;border-radius:8px;font-family:"Comic Sans MS",cursive}
+.q{margin:12px 0}.qt{font-weight:bold}.opt{display:block;width:100%;text-align:left;margin:4px 0;padding:8px 12px;border-radius:10px;border:2px solid #d6c4a0;background:#fffdf6;font:inherit;cursor:pointer}.opt.sel{border-color:var(--gold);background:#fff0c4}.opt.right{border-color:var(--green)}.opt.wrong{border-color:#c0392b}.fb{color:#6b5a40;font-style:italic}
+.timer{font:bold 1.5rem monospace}.timer.low{color:#c0392b}.big{font-size:3.4rem;font-weight:bold;color:#a5822a;text-align:center}
+table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #d6c4a0;padding:6px;text-align:left}.gA{color:#a5822a;font-weight:bold}
+@media(max-width:600px){main{padding:8px}.greet h1{font-size:1.3rem}}
+</style></head><body>
+<header><div>🏛 <b>Outlier Academy</b></div><nav><button data-go="map">Campus</button><button data-go="grades">Grades</button></nav></header><main id="app"></main>
+<script src="../../lessons.js"></script><script src="../../extra1.js"></script><script src="../../extra2.js"></script><script src="../shared/core.js"></script>
+<script>
+const st=MK.load('oc-mockup-academy'),L=MK.L,X=MK.X,$=s=>document.querySelector(s),app=$('#app'),E=MK.esc;let stop=()=>{};
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>b.dataset.go==='map'?map():grades());
+const COL={a:'#e0b84a',pass:'#8cc27a',tried:'#e3a07a',read:'#d9d0bd',none:'#cbbfa5'};
+function greet(){const g=st.greeting();return `<div class="card greet"><h1>Welcome back, Lord ${g.demo?'<span class="demo">demo progress</span>':''}</h1><div>🔥 ${g.streak}-day streak · You left off at <b>${E(g.where)}</b></div><div class="row" style="margin-top:8px"><button class="btn p" id="resume">Continue →</button></div></div>`}
+function map(){stop();const pts=L.map((l,i)=>{const r=Math.floor(i/4),c=i%4,x=(r%2?3-c:c)*230+120,y=r*170+110;return {l,i,x,y}});
+ const path='M'+pts.map(p=>p.x+' '+(p.y+40)).join(' L');
+ app.innerHTML=greet()+`<div class="card"><b>Campus map</b> — walk the path. Buildings glow when passed, gold for an A. Tap one to enter.</div>
+ <svg class="map" viewBox="0 0 940 720"><path d="${path}" fill="none" stroke="#e8d7a8" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><path d="${path}" fill="none" stroke="#cdb983" stroke-width="2" stroke-dasharray="8 10"/>
+ ${[[40,30],[880,300],[30,650],[900,690],[470,360]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="18" fill="#6aa35a"/><circle cx="${x+14}" cy="${y-8}" r="14" fill="#7bb56a"/>`).join('')}
+ ${pts.map(p=>{const s=st.status(p.l.skill),c=COL[s],hw=p.l.hw;return `<g class="bld" data-i="${p.i}" transform="translate(${p.x-70},${p.y-60})">
+  ${s==='a'?'<ellipse cx="70" cy="80" rx="90" ry="60" fill="#ffe27a" opacity=".45"/>':''}<polygon points="0,40 70,0 140,40" fill="${hw?'#4a6f9c':'#9c4a3a'}"/><rect class="body" x="10" y="40" width="120" height="70" fill="${c}" stroke="#5a4630" stroke-width="2"/>
+  ${[30,62,94].map(x=>`<rect x="${x}" y="52" width="18" height="18" fill="${s==='none'||s==='read'?'#7d6f58':'#fff6c8'}"/>`).join('')}<rect x="60" y="80" width="20" height="30" fill="#5a4630"/>
+  <rect x="0" y="112" width="140" height="22" rx="6" fill="#fffaf0" stroke="#5a4630"/><text x="70" y="128" text-anchor="middle">${p.i+1}. ${E(p.l.skill)}${s==='a'?' ★':''}</text></g>`}).join('')}</svg>`;
+ document.querySelectorAll('.bld').forEach(b=>b.onclick=()=>room(+b.dataset.i+1,'Warm-up'));$('#resume').onclick=()=>room(st.s.last.day,st.s.last.mode==='Test'?'Test':st.s.last.mode==='Learning'||st.s.last.mode==='Reading'?'Reading':'Warm-up')}
+function room(d,mode){stop();const l=L[d-1];st.touch(d,mode==='Reading'?'Learning':mode);
+ app.innerHTML=`<div class="room"><div class="board"><div>Day ${d} ${l.hw?'· Hardware Lab':''}</div><h2 style="margin:4px 0">${E(l.skill)}: ${E(l.title)}</h2></div>
+ <div class="tabs" style="margin:12px 0">${['Warm-up','Reading','Test'].map(m=>`<button class="${m===mode?'on':''}" data-m="${m}">${m}</button>`).join('')}<button data-back>← Campus</button></div><div class="card" id="pane"></div></div>`;
+ document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>room(d,b.dataset.m));$('[data-back]').onclick=map;const p=$('#pane');
+ if(mode==='Warm-up'){p.innerHTML=`<h3>☀️ Warm-up: ${d===1?'getting started':'recall '+E(L[d-2].skill)}</h3><div id="wq"></div>`;MK.quiz($('#wq'),MK.warm(d),{instant:true})}
+ if(mode==='Reading'){const x=X[l.skill];st.s.read[l.skill]=1;st.save();p.innerHTML=`<p><i>${E(l.why)}</i></p><h3>The big idea</h3><p>${E(l.breakdown)}</p><h3>Fundamentals</h3><p>${E(x.fund)}</p><h3>What matters most</h3><p>${E(x.matters)}</p><h3>Key concepts</h3><ul>${l.concepts.map(c=>`<li>${E(c)}</li>`).join('')}</ul><h3>Do's</h3><ul>${x.dos.map(c=>`<li>${E(c)}</li>`).join('')}</ul><h3>Don'ts</h3><ul>${x.donts.map(c=>`<li>${E(c)}</li>`).join('')}</ul><h3>Common mistakes</h3><ul>${x.mistakes.map(c=>`<li>${E(c)}</li>`).join('')}</ul><button class="btn p" id="tt">Take the test →</button>`;$('#tt').onclick=()=>room(d,'Test')}
+ if(mode==='Test'){const qs=MK.test(l.skill);p.innerHTML=`<div style="display:flex;justify-content:space-between"><b>Timed test · ${qs.length} questions</b><span class="timer" id="tm"></span></div><div id="tq"></div><button class="btn p" id="sub">Hand it in</button>`;
+  const ans=MK.quiz($('#tq'),qs);const fin=()=>{stop();const r=MK.score(qs,ans);st.grade(l.skill,r.pct);p.innerHTML=`<div class="big">${MK.letter(r.pct)}</div><p style="text-align:center">${r.ok}/${qs.length} · ${r.pct}% ${r.pct>=90?'— gold building earned! ★':''}</p>${MK.review(qs,ans)}<button class="btn p" id="bk">Back to campus</button>`;$('#bk').onclick=map};
+  stop=MK.timer(480,$('#tm'),fin);$('#sub').onclick=fin}}
+function grades(){stop();app.innerHTML=greet()+`<div class="card"><h2 style="margin-top:0">📜 Report card</h2><p>GPA <b>${st.gpa()}</b> · A's: <b>${L.filter(l=>st.status(l.skill)==='a').length}/16</b></p><table><tr><th>Day</th><th>Class</th><th>Grade</th><th>Status</th></tr>${L.map((l,i)=>{const p=st.s.grades[l.skill],g=MK.letter(p);return `<tr><td>${i+1}</td><td>${E(l.skill)}</td><td class="${g==='A'?'gA':''}">${g}${p!=null?' ('+p+'%)':''}</td><td>${{a:'★ Gold',pass:'Passed',tried:'Retake',read:'Read',none:'—'}[st.status(l.skill)]}</td></tr>`}).join('')}</table></div>`;$('#resume').onclick=()=>room(st.s.last.day,'Reading')}
+map();
+</script></body></html>
